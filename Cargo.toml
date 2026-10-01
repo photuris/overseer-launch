@@ -1,0 +1,43 @@
+[package]
+name = "overseer-launch"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98"
+description = "Launch an overseer session from a named profile of agent roles"
+license = "MIT"
+repository = "https://github.com/photuris/overseer-launch"
+homepage = "https://github.com/photuris/overseer-launch"
+readme = "README.md"
+
+[[bin]]
+name = "overseer"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "1"
+
+[lints.rust]
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+expect_used = "deny"
+missing_docs_in_private_items = "warn"
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"
+unwrap_used = "deny"
+
+# Smallest binary: the process execs the overseer almost immediately.
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
