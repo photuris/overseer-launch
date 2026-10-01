@@ -69,6 +69,45 @@ judge       = "overseer-judge"
 [`profiles.example.toml`](profiles.example.toml) is what `init`
 writes.
 
+## Loading the skill at startup
+
+By default the overseer agent loads the skill on its own when the
+first implementation task arrives. To load it at launch instead, give
+the agent a starting prompt. `claude`, `codex`, and `pi` all take one
+as a trailing argument, and the `overseer` value is a whole command
+line, so it goes in the profile:
+
+```toml
+[profiles.claude]
+overseer = "claude 'Load the overseer skill and confirm the roster.'"
+
+[profiles.codex]
+overseer = "codex --model gpt-6-astra 'Load the overseer skill and confirm the roster.'"
+
+[profiles.open]
+overseer = "pi --model code/kimi-k3 'Load the overseer skill and confirm the roster.'"
+```
+
+Claude Code also takes the skill's slash command as that prompt,
+`overseer = "claude '/overseer'"`. If your version shows it as plain
+text instead of running it, use the sentence.
+
+What this buys and costs:
+
+- The skill is always loaded, and the roster check runs before you
+  type a task, so a broken profile shows up at once.
+- The agent takes a paid turn at startup, and the skill stays in
+  context even in a session where you only ask questions.
+
+A lighter option on `claude` and `pi` is
+`--append-system-prompt 'Overseer mode is on. Load the overseer skill before any implementation task.'`
+It costs no startup turn, but it is a nudge, not a guarantee.
+
+There is no profile key for this, on purpose. Each agent invokes
+skills its own way, and the command string already says it. On
+Windows the value runs under `cmd /C`, where single quotes do not
+quote; use `\"` inside the TOML string there.
+
 ## Output and exit codes
 
 stdout carries JSON (`--pretty` indents it). On failure the last

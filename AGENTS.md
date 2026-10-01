@@ -39,5 +39,9 @@ there are twins and change together.
   Otherwise a profile without a judge would inherit one from the
   shell that launched the previous session.
 - `init` never overwrites. Exit 1 with the path.
+- No `skill` or `autoload` key. Loading the skill at startup is a
+  starting prompt in the profile's `overseer` command (README,
+  "Loading the skill at startup"). A key would make the launcher know
+  each agent's skill syntax.
 - No `list`, `add`, or `edit`. The TOML file is the interface; an
   unknown name lists the known ones in its error.
