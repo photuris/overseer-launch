@@ -90,7 +90,10 @@ pub fn run(cli: Cli, out: &mut dyn Write) -> Result<u8> {
 
     let profiles = Profiles::load(&path)?;
     let (name, profile) = profiles.resolve(cli.profile.as_deref())?;
-    let herdr = env::var("HERDR_ENV").is_ok_and(|v| v == "1");
+    let herdr = in_herdr(
+        env::var("HERDR_ENV").ok().as_deref(),
+        env::var("HC_TERMINAL_ID").ok().as_deref(),
+    );
     let env = profile.env(herdr);
 
     if cli.print {
@@ -100,6 +103,12 @@ pub fn run(cli: Cli, out: &mut dyn Write) -> Result<u8> {
     }
 
     launch::exec(&profile.overseer, &env)
+}
+
+/// Whether the process runs under Herdr: the TUI sets `HERDR_ENV=1`,
+/// the desktop app's core sets `HC_TERMINAL_ID` in each terminal.
+fn in_herdr(herdr_env: Option<&str>, hc_terminal: Option<&str>) -> bool {
+    herdr_env == Some("1") || hc_terminal.is_some_and(|id| !id.is_empty())
 }
 
 /// Prints one JSON value on stdout, compact unless `pretty`.
@@ -121,4 +130,41 @@ pub fn print_one(
 
     writeln!(out, "{text}")
         .map_err(|e| Error::Unexpected(format!("writing stdout: {e}")))
+}
+
+#[cfg(test)]
+mod tests {
+    mod in_herdr {
+        use crate::in_herdr;
+
+        #[test]
+        fn should_be_false_when_neither_variable_is_set() {
+            assert!(!in_herdr(None, None));
+        }
+
+        #[test]
+        fn should_be_true_when_herdr_env_is_1() {
+            assert!(in_herdr(Some("1"), None));
+        }
+
+        #[test]
+        fn should_be_false_when_herdr_env_is_0() {
+            assert!(!in_herdr(Some("0"), None));
+        }
+
+        #[test]
+        fn should_be_true_when_hc_terminal_id_is_set() {
+            assert!(in_herdr(None, Some("t7")));
+        }
+
+        #[test]
+        fn should_be_false_when_hc_terminal_id_is_empty() {
+            assert!(!in_herdr(None, Some("")));
+        }
+
+        #[test]
+        fn should_be_true_when_both_variables_are_set() {
+            assert!(in_herdr(Some("1"), Some("t7")));
+        }
+    }
 }

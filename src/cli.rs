@@ -9,9 +9,10 @@ use clap::{Parser, Subcommand};
 /// A profile names the commands for each role: the overseer itself, the
 /// implementer, and optionally the reviewer and judge. `overseer NAME`
 /// exports OVERSEER_IMPLEMENTER, OVERSEER_REVIEWER, and OVERSEER_JUDGE
-/// from that profile (plus HERDR_OVERSEER=1 when HERDR_ENV=1) and
-/// replaces itself with the profile's overseer command in the current
-/// pane. Without NAME it uses the file's `default`.
+/// from that profile (plus HERDR_OVERSEER=1 under Herdr: HERDR_ENV=1, or
+/// HC_TERMINAL_ID set by the Herdr desktop app's core) and replaces
+/// itself with the profile's overseer command in the current pane.
+/// Without NAME it uses the file's `default`.
 ///
 /// Profiles live in $XDG_CONFIG_HOME/overseer/profiles.toml
 /// (~/.config/overseer/profiles.toml; %APPDATA%\overseer\profiles.toml

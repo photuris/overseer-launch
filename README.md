@@ -6,8 +6,8 @@ command for each role: the overseer itself, the implementer, and
 optionally the reviewer and judge. Launching a profile exports the
 roster variables the skill reads (`OVERSEER_IMPLEMENTER`,
 `OVERSEER_REVIEWER`, `OVERSEER_JUDGE`, and `HERDR_OVERSEER=1` when
-inside Herdr) and replaces itself with the overseer command in the
-current pane.
+inside Herdr, TUI or desktop app) and replaces itself with the
+overseer command in the current pane.
 
 It does one thing. It does not create workspaces, tabs, or tmux
 sessions: run it inside the pane the overseer should own, the same way
@@ -63,8 +63,9 @@ judge       = "overseer-judge"
   Windows), a non-interactive shell, so aliases from your shell rc are
   not visible. Pin a model in every command; an unpinned implementer
   that defaults to an expensive model defeats the point.
-- `HERDR_OVERSEER=1` is derived from `HERDR_ENV=1`. Do not put it in a
-  profile. tmux has no such signal.
+- `HERDR_OVERSEER=1` is derived from `HERDR_ENV=1` (Herdr TUI) or a
+  non-empty `HC_TERMINAL_ID` (set by the Herdr desktop app's core). Do
+  not put it in a profile. tmux has no such signal.
 
 [`profiles.example.toml`](profiles.example.toml) is what `init`
 writes.

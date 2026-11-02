@@ -10,11 +10,33 @@ use std::{
 /// The fixture profile file.
 const FIXTURE: &str = "tests/fixtures/profiles.toml";
 
+/// Runs the binary with `args`, no Herdr variables inherited, and then
+/// each of `vars` set.
+fn overseer_with(args: &[&str], vars: &[(&str, &str)]) -> Output {
+    let mut command = Command::new(env!("CARGO_BIN_EXE_overseer"));
+
+    command
+        .args(args)
+        .env_remove("HERDR_ENV")
+        .env_remove("HC_TERMINAL_ID");
+
+    for (name, value) in vars {
+        command.env(name, value);
+    }
+
+    command
+        .output()
+        .unwrap_or_else(|e| panic!("running the binary: {e}"))
+}
+
 /// Runs the binary with `args` and a clean roster environment.
 fn overseer(args: &[&str], herdr_env: Option<&str>) -> Output {
     let mut command = Command::new(env!("CARGO_BIN_EXE_overseer"));
 
-    command.args(args).env_remove("HERDR_ENV");
+    command
+        .args(args)
+        .env_remove("HERDR_ENV")
+        .env_remove("HC_TERMINAL_ID");
 
     if let Some(value) = herdr_env {
         command.env("HERDR_ENV", value);
@@ -85,6 +107,28 @@ fn should_add_herdr_signal_when_herdr_env_is_1() {
     let value = stdout_json(&output);
 
     assert_eq!(value["env"]["HERDR_OVERSEER"].as_str(), Some("1"));
+}
+
+#[test]
+fn should_add_herdr_signal_when_hc_terminal_id_is_set() {
+    let output = overseer_with(
+        &["--config", FIXTURE, "--print"],
+        &[("HC_TERMINAL_ID", "t7")],
+    );
+    let value = stdout_json(&output);
+
+    assert_eq!(value["env"]["HERDR_OVERSEER"].as_str(), Some("1"));
+}
+
+#[test]
+fn should_omit_herdr_signal_when_hc_terminal_id_is_empty() {
+    let output = overseer_with(
+        &["--config", FIXTURE, "--print"],
+        &[("HC_TERMINAL_ID", "")],
+    );
+    let value = stdout_json(&output);
+
+    assert!(value["env"].get("HERDR_OVERSEER").is_none(), "env: {value}");
 }
 
 #[test]
@@ -179,6 +223,7 @@ fn should_clear_inherited_roster_and_pass_exit_code_when_launching() {
     let output = Command::new(env!("CARGO_BIN_EXE_overseer"))
         .args(["--config", &path.to_string_lossy()])
         .env_remove("HERDR_ENV")
+        .env_remove("HC_TERMINAL_ID")
         .env("OVERSEER_JUDGE", "leaked")
         .output()
         .unwrap();
