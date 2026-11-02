@@ -5,7 +5,8 @@
 # Full commands only. Each value runs under `sh -c` (`cmd /C` on
 # Windows), a non-interactive shell, so shell aliases from your rc file
 # are not visible here. HERDR_OVERSEER=1 is set automatically when
-# HERDR_ENV=1; do not put it in a profile.
+# HERDR_ENV=1 or HC_TERMINAL_ID is set (the Herdr desktop app's core
+# sets it); do not put it in a profile.
 #
 # A twin of this file ships with the overseer skill as
 # resources/profiles.example.toml.
