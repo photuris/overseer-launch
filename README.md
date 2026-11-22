@@ -50,9 +50,9 @@ on Windows). `--config PATH` reads another file.
 default = "claude"
 
 [profiles.claude]
-overseer    = "claude"
+overseer    = "claude --model claude-fable-5-2"
 implementer = "claude --model claude-sonnet-5-5"
-reviewer    = "codex -c model_reasoning_effort=medium --model gpt-6-astra"
+reviewer    = "codex -c model_reasoning_effort=high --model gpt-6.1-sol"
 judge       = "overseer-judge"
 ```
 
@@ -80,18 +80,20 @@ line, so it goes in the profile:
 
 ```toml
 [profiles.claude]
-overseer = "claude 'Load the overseer skill and confirm the roster.'"
+overseer = "claude --model claude-fable-5-2 \"Load the overseer skill and confirm the roster.\""
 
 [profiles.codex]
-overseer = "codex --model gpt-6-astra 'Load the overseer skill and confirm the roster.'"
+overseer = "codex --model gpt-6.1-sol \"Load the overseer skill and confirm the roster.\""
 
-[profiles.open]
-overseer = "pi --model code/kimi-k3 'Load the overseer skill and confirm the roster.'"
+[profiles.other]
+overseer = "pi --model <provider>/<model> \"Load the overseer skill and confirm the roster.\""
 ```
 
-Claude Code also takes the skill's slash command as that prompt,
-`overseer = "claude '/overseer'"`. If your version shows it as plain
-text instead of running it, use the sentence.
+The prompt is in escaped double quotes, which work under both `sh`
+and `cmd`. Claude Code also takes the skill's slash command as that
+prompt, `\"/overseer\"`. If your version shows it as plain text
+instead of running it, use the sentence. The profiles that `init`
+writes already end with a starting prompt.
 
 What this buys and costs:
 
@@ -107,7 +109,7 @@ It costs no startup turn, but it is a nudge, not a guarantee.
 There is no profile key for this, on purpose. Each agent invokes
 skills its own way, and the command string already says it. On
 Windows the value runs under `cmd /C`, where single quotes do not
-quote; use `\"` inside the TOML string there.
+quote, so keep the escaped double quotes there.
 
 ## Output and exit codes
 
